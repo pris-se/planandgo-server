@@ -6,7 +6,7 @@ import { ApiError } from '../exceptions/api.error.js'
 //Registration
 export const registration = async (req, res) => {
     try {
-        const { email, password, name } = req.body
+        const { email, password, username } = req.body
         const isUsed = await User.findOne({ email })
 
         if (isUsed) {
@@ -24,7 +24,7 @@ export const registration = async (req, res) => {
             const __dirname = dirname(fileURLToPath(import.meta.url))
             req.files.image.mv(path.join(__dirname, '..', 'uploads', fileName))
 
-            const user = new User({ email, password: hash, name, img: fileName })
+            const user = new User({ email, password: hash, username, img: fileName })
 
             const token = generateToken(user._id)
 
@@ -37,7 +37,7 @@ export const registration = async (req, res) => {
             }
             return res.status(201).json({ user, token, message: 'registration success' })
         }
-        const user = new User({ email, password: hash, name, img: '' })
+        const user = new User({ email, password: hash, username, img: '' })
         const token = generateToken(user._id)
 
         await user.save()
