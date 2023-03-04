@@ -1,9 +1,7 @@
 import Task from '../models/Task.js'
-import User from '../models/User.js'
 import path, {dirname} from 'path'
 import { fileURLToPath } from 'url'
 
-//Create task
 export const createTask = async (req, res) => {
     try {
         const {title, description, duration} = req.body

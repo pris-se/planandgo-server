@@ -4,8 +4,6 @@ import { checkAuth } from "../middlewares/auth.middleware.js";
 
 const router = new Router()
 
-//Registration
-//http://localhost:3002/api/tasks/
 router.post('/create', createTask)
 router.get('/', getAll)
 router.get('/:id', getById)

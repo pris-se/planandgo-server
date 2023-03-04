@@ -1,18 +1,20 @@
 import { Router } from "express";
 import { registration, login, getMe } from '../controllers/auth.controller.js'
 import { checkAuth } from "../middlewares/auth.middleware.js";
+import { body } from 'express-validator';
 
 const router = new Router()
 
-//Registration
-//http://localhost:3002/api/auth/registration
-router.post('/registration', registration)
-//Login
-//http://localhost:3002/api/auth/login
+router.post(
+    '/registration',
+    body('email').isEmail(),
+    body('username').notEmpty().isLength({ min: 2, max: 35 }).trim().escape(),
+    body('password').isLength({ min: 6, max: 128 }).matches(/\d/),
+    registration
+)
+
 router.post('/login', login)
 
-//Get me
-//http://localhost:3002/api/auth/me
-router.get('/me',checkAuth, getMe)
+router.get('/me', checkAuth, getMe)
 
 export default router

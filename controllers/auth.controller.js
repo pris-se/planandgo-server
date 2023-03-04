@@ -1,14 +1,18 @@
 import User from '../models/User.js'
 import bcrypt from 'bcryptjs'
 import { generateToken } from '../services/token.service.js'
-import { ApiError } from '../exceptions/api.error.js'
+// import { ApiError } from '../exceptions/api.error.js'
+import { validationResult } from 'express-validator';
 
-//Registration
 export const registration = async (req, res) => {
     try {
         const { email, password, username } = req.body
         const isUsed = await User.findOne({ email })
 
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
         if (isUsed) {
             return res.status(409).json({
                 message: 'This email is already used'
@@ -51,7 +55,7 @@ export const registration = async (req, res) => {
         return res.status(404).json({ message: 'registration error' })
     }
 }
-//email
+
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body
@@ -81,7 +85,7 @@ export const login = async (req, res) => {
         return res.status(404).json({ message: 'authorization error' })
     }
 }
-//Get me
+
 export const getMe = async (req, res) => {
     try {
         const user = await User.findById(req.userId)

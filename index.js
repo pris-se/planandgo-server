@@ -5,36 +5,25 @@ import cors from 'cors'
 import fileUpload from 'express-fileupload';
 import authRoute from './routes/auth.route.js'
 import tasksRoute from './routes/task.route.js'
-import { errorMiddleware } from './middlewares/error.middleware.js';
 import serverless from 'serverless-http';
+import bodyParser from 'body-parser';
+// import { errorMiddleware } from './middlewares/error.middleware.js';
 
 const app = express()
-const router = express.Router()
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 dotenv.config()
 
-//Constansts
 const PORT = process.env.PORT || 3001
 const DB_URL = process.env.DB_URL
 
-//Middleware
 app.use(cors())
 app.use(fileUpload())
 app.use(express.json())
 app.use("/uploads", express.static('uploads'))
 
-
-//Routes
-//http://localhost:3002/
 app.use('/api/auth', authRoute)
 app.use('/api/tasks', tasksRoute)
-
-router.get('/', (req, res) => {
-    res.json({
-        'author': 'Sergey P', 
-    })
-})
-
-// app.use("/.netlify/functions/api", router)
 
 async function start() {
     try {
