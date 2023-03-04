@@ -8,7 +8,7 @@ const TaskSchema = new mongoose.Schema(
     label: { type: String, default: "other" },
     rating: { type: Number },
     views: { type: Number, default: 0 },
-    tags: { type: Array },
+    tags: [String],
     img: { type: String, default: "" },
   },
   { timestamps: true }

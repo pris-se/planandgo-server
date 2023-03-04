@@ -1,111 +1,132 @@
 import Task from '../models/Task.js'
-import path, {dirname} from 'path'
+import path, { dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 export const createTask = async (req, res) => {
     try {
-        const {title, description, duration} = req.body
+        const { title, description, duration } = req.body
 
-        if(req.files) {
+        if (req.files) {
             let fileName = Date.now().toString() + req.files.image.name
             const __dirname = dirname(fileURLToPath(import.meta.url))
             req.files.image.mv(path.join(__dirname, '..', 'uploads', fileName))
 
-            const newTaskWithImage = new Task({
+            const task = new Task({
                 title,
                 description,
                 duration,
                 img: fileName
             })
 
-            await newTaskWithImage.save()
-            return res.status(201).json(newTaskWithImage)
+            await task.save()
+            return res.status(201).json({ task, message: 'registration success' })
         }
 
-        const newTaskWithoutImage = new Task({
+        const task = new Task({
             title,
             description,
             duration,
             img: ''
         })
-        await newTaskWithoutImage.save()
-        return res.status(201).json(newTaskWithImage)
+        await task.save()
+        return res.status(201).json({ task, message: 'registration success' })
 
     } catch (error) {
-        res.status(404).json({message: 'something went wrong'})
+        return res.status(404).json({ message: 'something went wrong' })
     }
 }
 export const getAll = async (req, res) => {
     try {
         const tasks = await Task.find()
-        if(!tasks) {
-            return res.status(208).json({message: 'there are no tasks'})
+        if (!tasks) {
+            return res.status(208).json({ message: 'there are no tasks' })
         }
-            res.json({
-                tasks,
-                message: 'Success'
-            })
+        return res.json({
+            tasks,
+            message: 'Success'
+        })
     } catch (error) {
-        return res.status(404).json({message: 'something went wrong'})
+        return res.status(404).json({ message: 'something went wrong' })
     }
 }
 export const getById = async (req, res) => {
     try {
         const task = await Task.findByIdAndUpdate(req.params.id, {
-            $inc: {views: 1}
+            $inc: { views: 1 }
         })
-        if(!task) {
-            return res.status(208).json({message: 'there are no tasks'})
+        if (!task) {
+            return res.status(208).json({ message: 'there are no tasks' })
         }
-            res.json({
-                task,
-                message: 'Success'
-            })
+        return res.json({
+            task,
+            message: 'Success'
+        })
     } catch (error) {
-        return res.status(404).json({message: 'something went wrong'})
+        return res.status(404).json({ message: 'something went wrong' })
     }
 }
 export const removeTask = async (req, res) => {
     try {
         const task = await Task.findByIdAndDelete(req.params.id)
-        if(!task) {
-            return res.status(208).json({message: 'there are no tasks'})
+        if (!task) {
+            return res.status(208).json({ message: 'there are no tasks' })
         }
-            res.json({
-                task,
-                message: 'Success'
-            })
+        res.json({
+            task,
+            message: 'removed'
+        })
     } catch (error) {
-        return res.status(404).json({message: 'something went wrong'})
+        return res.status(404).json({ message: 'something went wrong' })
     }
 }
 export const updateTask = async (req, res) => {
     try {
-        const { title, duration, description, id } = req.body
-        const task = await Task.findById(id)
+        const { title, duration, description, label, tags, id } = req.body
 
-        if(req.files) {
+        if (req.files) {
             let fileName = Date.now().toString() + req.files.image.name
             const __dirname = dirname(fileURLToPath(import.meta.url))
             req.files.image.mv(path.join(__dirname, '..', 'uploads', fileName))
-            task.img = fileName || ''
+            const img = fileName || ''
+
+            try {
+                const task = await Task.findByIdAndUpdate(id, {
+                    title,
+                    duration,
+                    description,
+                    label,
+                    img,
+                    tags: tags
+                    // $push: { tags: tags.trim().split('#') }
+                })
+                return res.json({
+                    task,
+                    message: 'Success'
+                })
+            } catch (error) {
+                console.log(error);
+            }
+
         }
 
-        task.title = title
-        task.duration = duration
-        task.description = description
-
         try {
-            await task.save()
+            const task = await Task.findByIdAndUpdate(id, {
+                title,
+                duration,
+                description,
+                label,
+                tags: tags
+                // $push: { tags: tags.trim().split('#') }
+            })
+            return res.json({
+                task,
+                message: 'Success'
+            })
         } catch (error) {
             console.log(error);
         }
 
-            res.json({
-                task,
-                message: 'Success'
-            })
     } catch (error) {
-        return res.status(404).json({message: 'something went wrong'})
+        return res.status(404).json({ message: 'something went wrong' })
     }
 }
